@@ -16,9 +16,13 @@ namespace DestructorSist//me quedé en el step 3
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Ship ship = new Ship();
-        Vector3 cameraPosition=new Vector3(0.0f,0.0f,25000.0f);
+        Vector3 cameraPosition=new Vector3(0.0f,0.0f, GameConstants.CameraHeight);
         Matrix projectionMatrix;
         Matrix viewMatrix;
+        Model asteroidModel;
+        Matrix[] asteroidTransforms;
+        Asteroid[] asteroidList = new Asteroid[GameConstants.NumAsteroids];
+        Random random=new Random();
 
         public Game1()
         {
@@ -29,7 +33,7 @@ namespace DestructorSist//me quedé en el step 3
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f),GraphicsDevice.DisplayMode.AspectRatio,20000.0f, 30000.0f);
+            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f),GraphicsDevice.DisplayMode.AspectRatio, GameConstants.CameraHeight - 1000.0f,GameConstants.CameraHeight + 1000.0f);
             viewMatrix = Matrix.CreateLookAt(cameraPosition,
             Vector3.Zero, Vector3.Up);
 
@@ -39,6 +43,9 @@ namespace DestructorSist//me quedé en el step 3
         SoundEffect soundEngine;
         SoundEffectInstance soundEngineInstance;
         SoundEffect soundHyperspaceActivation;
+        SoundEffect soundExplosion2;
+        SoundEffect soundExplosion3;
+        SoundEffect soundWeaponsFire;
         //Vector3 modelPosition = Vector3.Zero;
         //float modelRotation = 0.0f;
         //Vector3 cameraPosition = new Vector3(0.0f, 50.0f, 5000.0f);
@@ -67,16 +74,45 @@ namespace DestructorSist//me quedé en el step 3
             // Create a new SpriteBatch, which can be used to draw textures.
             ship.Model=Content.Load<Model>("Models/p1_wedge");
             ship.Transforms = SetupEffectDefaults(ship.Model);
-
+            asteroidModel=Content.Load<Model>("Models/asteroid1");
+            asteroidTransforms =SetupEffectDefaults(asteroidModel);
             //spriteBatch = new SpriteBatch(GraphicsDevice);
             //myModel = Content.Load<Model>("Models\\p1_wedge");
             soundEngine = Content.Load<SoundEffect>("Waves\\engine_2");
             soundEngineInstance = soundEngine.CreateInstance();
             soundHyperspaceActivation = Content.Load<SoundEffect>("Waves\\hyperspace_activate");
+
+            soundExplosion2 = Content.Load<SoundEffect>("Waves/explosion2");
+            soundExplosion3 = Content.Load<SoundEffect>("Waves/explosion3");
+            soundWeaponsFire = Content.Load<SoundEffect>("Waves/tx0_fire1");
+
             //aspectRatio = graphics.GraphicsDevice.Viewport.AspectRatio;
-            
+
         }
-        
+        private void ResetAsteroids()
+        {
+            float xStart;
+            float yStart;
+            for (int i = 0; i < GameConstants.NumAsteroids; i++)
+            {
+                if (random.Next(2) == 0)
+                {
+                    xStart = (float)-GameConstants.PlayfieldSizeX;
+                }
+                else
+                {
+                    xStart = (float)GameConstants.PlayfieldSizeX;
+                }
+                yStart =
+                (float)random.NextDouble() * GameConstants.PlayfieldSizeY;
+                asteroidList[i].position = new Vector3(xStart, yStart, 0.0f);
+                double angle = random.NextDouble() * 2 * Math.PI;
+                asteroidList[i].direction.X = -(float)Math.Sin(angle);
+                asteroidList[i].direction.Y = (float)Math.Cos(angle);
+                asteroidList[i].speed = GameConstants.AsteroidMinSpeed +
+                (float)random.NextDouble() * GameConstants.AsteroidMaxSpeed;
+            }
+        }
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
@@ -84,13 +120,32 @@ namespace DestructorSist//me quedé en el step 3
 
         protected override void Update(GameTime gameTime)
         {
+            float timeDelta = (float)gameTime.ElapsedGameTime.TotalSeconds;
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 this.Exit();
 
+            if (ship.isActive==true)
+            {
+                BoundingSphere shipSphere = new BoundingSphere(ship.Position, ship.Model.Meshes[0].BoundingSphere.Radius * GameConstants.ShipBoundingSphereScale);
+                for (int i = 0; i < asteroidList.Length; i++)
+                {
+                    BoundingSphere b = new BoundingSphere(asteroidList[i].position,
+                    asteroidModel.Meshes[0].BoundingSphere.Radius *
+                    GameConstants.AsteroidBoundingSphereScale);
+                    if (b.Intersects(shipSphere))
+                    {
+                        //blowupship
+                        soundExplosion3.Play();
+                        ship.isActive = false;
+                        break;//exittheloop
+                    }
+                } 
+            }
+
             //tutorial1
             //modelRotation += (float)gameTime.ElapsedGameTime.TotalMilliseconds * MathHelper.ToRadians(0.1f);
-            
+
             // Get some input.  
             UpdateInput();
             // Add velocity to the current position.
@@ -100,6 +155,11 @@ namespace DestructorSist//me quedé en el step 3
             ship.Position += ship.Velocity;
             // Bleed off velocity over time.    
             ship.Velocity *= 0.95f;
+
+            for (int i = 0; i < GameConstants.NumAsteroids; i++)
+            {
+                asteroidList[i].Update(timeDelta);
+            }
 
             base.Update(gameTime);
         }
@@ -160,6 +220,14 @@ namespace DestructorSist//me quedé en el step 3
             GraphicsDevice.Clear(Color.CornflowerBlue);
             Matrix shipTransformMatrix = ship.RotationMatrix * Matrix.CreateTranslation(ship.Position);
             DrawModel(ship.Model, shipTransformMatrix, ship.Transforms);
+
+            for (int i = 0; i < GameConstants.NumAsteroids; i++)
+            {
+                Matrix asteroidTransform =
+                Matrix.CreateTranslation(asteroidList[i].position);
+                DrawModel(asteroidModel, asteroidTransform, asteroidTransforms);
+            }
+
             base.Draw(gameTime);
 
 

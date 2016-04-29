@@ -19,6 +19,7 @@ namespace DestructorSist
         private float rotation;
         public Vector3 Velocity;
         private const float VelocityScale=5.0f;
+        public bool isActive=true;
         public Vector3 position;
         public Vector3 direction;
         public float speed;
