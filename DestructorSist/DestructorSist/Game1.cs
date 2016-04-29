@@ -60,12 +60,14 @@ namespace DestructorSist//me quedé en el step 3
                 }
             }
             return absoluteTransforms;
-        }
+        }
+
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             ship.Model=Content.Load<Model>("Models/p1_wedge");
-            ship.Transforms = SetupEffectDefaults(ship.Model);
+            ship.Transforms = SetupEffectDefaults(ship.Model);
+
             //spriteBatch = new SpriteBatch(GraphicsDevice);
             //myModel = Content.Load<Model>("Models\\p1_wedge");
             soundEngine = Content.Load<SoundEffect>("Waves\\engine_2");
@@ -158,7 +160,8 @@ namespace DestructorSist//me quedé en el step 3
             GraphicsDevice.Clear(Color.CornflowerBlue);
             Matrix shipTransformMatrix = ship.RotationMatrix * Matrix.CreateTranslation(ship.Position);
             DrawModel(ship.Model, shipTransformMatrix, ship.Transforms);
-            base.Draw(gameTime);
+            base.Draw(gameTime);
+
 
             //Matrix[] transforms = new Matrix[myModel.Bones.Count];
             //myModel.CopyAbsoluteBoneTransformsTo(transforms);

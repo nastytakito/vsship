@@ -1,0 +1,3 @@
+C:\Users\JesusMario\Desktop\vsship-master\DestructorSist\DestructorSist\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+C:\Users\JesusMario\SkyDrive\Documentos\Visual Studio 2015\Projects\DestructorSist\DestructorSist\DestructorSist\obj\x86\Debug\DestructorSist.csprojResolveAssemblyReference.cache
+C:\Users\JesusMario\SkyDrive\Documentos\Visual Studio 2015\Projects\DestructorSist\DestructorSist\DestructorSist\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
