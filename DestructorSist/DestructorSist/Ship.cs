@@ -18,13 +18,16 @@ namespace DestructorSist
         public Matrix RotationMatrix = Matrix.CreateRotationX(MathHelper.PiOver2);
         private float rotation;
         public Vector3 Velocity;
-        private const float VelocityScale=5.0f;        public Vector3 position;
+        private const float VelocityScale=5.0f;
+        public Vector3 position;
         public Vector3 direction;
-        public float speed;
+        public float speed;
+
         Model asteroidModel;
         Matrix[] asteroidTransforms;
         Asteroid[] asteroidList = new Asteroid[GameConstants.NumAsteroids];
-        Random random=new Random();
+        Random random=new Random();
+
         public float Rotation
         {
             get { return rotation; }
@@ -59,7 +62,8 @@ namespace DestructorSist
             // Rotate the model using the left thumbstick, and scale it down.            
             Rotation -= controllerState.ThumbSticks.Left.X * 0.10f;
             // Finally, add this vector to our velocity.
-            Velocity += RotationMatrix.Forward * VelocityScale * controllerState.Triggers.Right;
+            Velocity += RotationMatrix.Forward * VelocityScale * controllerState.Triggers.Right;
+
             //Velocity += RotationMatrix.Forward * 1.0f *controllerState.Triggers.Right;
         }
     }
